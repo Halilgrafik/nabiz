@@ -45,17 +45,24 @@ Django'nun yerleşik auth view'ları (`django.contrib.auth.urls`) + `core/views.
 
 Uçtan uca test edildi (bu oturumda, `curl` ile): kayıt → otomatik giriş → habere tıkla → `ReadEvent` oluştu → panelde doğru sayılar göründü (1 okuma, 1 seri).
 
-## FAZ 5 — Cila + Yayına Alma 🔶 KISMEN TAMAMLANDI
+## FAZ 5 — Cila + Yayına Alma ✅ TAMAMLANDI (domain/superuser hariç)
 
 Yapılanlar: `README.md`, `LICENSE` (MIT), `robots.txt`, 404/500 sayfaları, `.env.example`.
 
-**Kalan (kullanıcı tarafından yapılmalı — Claude Code'un erişemediği adımlar):**
-1. Railway'de yeni proje oluştur, GitHub reposunu (`Halilgrafik/nabiz`) bağla
-2. Aynı projeye **PostgreSQL eklentisi** ekle
-3. Ortam değişkenleri: `SECRET_KEY` (yeni/rastgele, yerel `.env`'dekiyle aynı olmasın), `DEBUG=False`, `ALLOWED_HOSTS` (Railway'in verdiği `*.up.railway.app` adresi), `CSRF_TRUSTED_ORIGINS` (`https://...` tam adres)
-4. Deploy sonrası bir kerelik `python manage.py createsuperuser` çalıştır (Railway konsolundan veya `railway run`)
-5. Haber çekmeyi otomatikleştirmek için: aynı projede başlangıç komutu `python manage.py fetch_news` olan **ikinci bir servis** oluştur, Settings → Cron Schedule'a `0 * * * *` (saatlik, UTC) gir. Bu servis gunicorn/port'a ihtiyaç duymaz, sadece komutu çalıştırıp çıkar.
-6. (Opsiyonel) Özel domain bağlanacaksa Railway'in domain ayarlarından yapılır.
+**Railway'de canlı** (2026-08-20, bu oturumda tamamlandı): proje `nabiz`, iki servis:
+- **web** — `Halilgrafik/nabiz`'den `railway up` ile deploy edildi (GitHub App entegrasyonu bu hesap için yetkilendirilmediğinden `--repo` ile bağlanamadı, CLI'nin lokal kaynak yükleme yolu kullanıldı). Canlı adres: **https://web-production-d48e7.up.railway.app/**. Env: `SECRET_KEY` (yeni/rastgele), `DEBUG=False`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL=${{Postgres.DATABASE_URL}}`.
+- **fetch-news** — aynı kod, ayrı bir Railway config dosyası kullanıyor: `railway.cron.json` (`startCommand: python manage.py fetch_news`). **Önemli:** `web`'in `railway.json`'ındaki `deploy.startCommand` proje genelinde varsayılan olduğundan, aynı repodan deploy edilen her servise uygulanıyor — cron servisine ayrı `railwayConfigFile` (`serviceInstanceUpdate` mutasyonuyla) atanmadan `bash start.sh`/gunicorn çalıştırmaya devam ediyordu. Bu yüzden ikinci bir servis eklerken mutlaka kendi config dosyasını ata. Cron schedule: `0 * * * *` (saatlik, UTC) — `nextCronRunAt` alanından doğrulanabilir. İlk manuel tetiklemede (`deploymentInstanceExecutionCreate` mutasyonu) 195 gerçek haber çekildi, production'da görünüyor.
+- **Postgres** eklentisi ekli, `DATABASE_URL` referans değişkeni ile bağlı.
+
+**Railway CLI notları (gelecekte bu proje üzerinde çalışırken):**
+- CLI `~/.railway/bin/railway`'de kurulu, `source "$HOME/.railway/env"` ile PATH'e alınıyor.
+- `railway ssh` bu WSL ortamında host-key doğrulamasında takılıyor (askpass/DISPLAY sorunu, çözülemedi) — tek seferlik yönetim komutları için `railway api` üzerinden GraphQL mutasyonları (örn. `deploymentInstanceExecutionCreate`) veya geçici env var + servis config değişikliği tercih edildi.
+- `railway add --repo ...` bu GitHub hesabı için "You do not have access to this resource" hatası verdi (Railway'in GitHub App'i bu repoya yetkilendirilmemiş) — bunun yerine boş servis oluşturup `railway up` ile lokal kaynaktan deploy edildi. GitHub push sonrası otomatik deploy istenirse, Railway dashboard'undan GitHub App'e bu repo için erişim verilmesi gerekir.
+
+**Kalan (kullanıcı tarafından yapılmalı):**
+1. `/admin/` için bir superuser hesabı — Railway dashboard'unda **web** servisi → sağ üstteki komut/terminal özelliğinden (veya `railway ssh` host-key sorunu çözülürse CLI'den) `python manage.py createsuperuser` çalıştırılmalı. Bu oturumda otomatikleştirilemedi.
+2. (Opsiyonel) Özel domain bağlanacaksa Railway'in domain ayarlarından yapılır.
+3. (Opsiyonel) GitHub'a her push'ta otomatik deploy istenirse, Railway'in GitHub App'ine `Halilgrafik/nabiz` reposu için erişim verilip `web` servisinin source'u repoya bağlanmalı (`railway service source connect --repo Halilgrafik/nabiz --service web`).
 
 ## İleride, Şimdi Değil (kapsam dışı bırakıldı)
 
@@ -66,4 +73,4 @@ Yapılanlar: `README.md`, `LICENSE` (MIT), `robots.txt`, 404/500 sayfaları, `.e
 
 ## Sıradaki Adım
 
-Kod tarafı (Faz 0-4 ve Faz 5'in yerel kısmı) tamamlandı ve yerelde uçtan uca doğrulandı. Bir sonraki adım kullanıcının Railway'de projeyi oluşturup yukarıdaki FAZ 5 adımlarını tamamlaması. Railway CLI bu makinede kurulu değil ve `railway login` tarayıcı üzerinden interaktif kimlik doğrulama gerektirdiğinden, bu adım Claude Code tarafından otomatikleştirilemez.
+Proje Railway'de canlı ve gerçek verilerle çalışıyor (https://web-production-d48e7.up.railway.app/). Kalan tek önemli adım: `/admin/` erişimi için bir superuser hesabı oluşturmak (yukarıda FAZ 5'te detaylı).
