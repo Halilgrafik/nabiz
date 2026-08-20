@@ -28,6 +28,7 @@ Django projesi + `core`/`news` app'leri oluşturuldu, `.env`/`.gitignore`, Railw
 - `news/models.py`: `Category`, `Source` (feed_url + `is_active`, kategori alanı YOK — bkz. aşağı), `Article` (link/guid ile tekilleştirme), `ReadEvent`
 - `news/management/commands/fetch_news.py`: aktif kaynakları gezip `requests` + `feedparser` ile çeker, kaynak başına `try/except` (bir kaynak bozuksa diğerleri etkilenmez), `link`/`guid` ile tekrar eklemeyi engeller
 - `news/migrations/0002_seed_sources.py`: 8 başlangıç kaynağı (4 uluslararası: TechCrunch, The Verge, Ars Technica, Wired · 4 yerli: Webrazzi, Log.com.tr, ShiftDelete.Net, DonanımHaber) — tüm feed URL'leri bu oturumda gerçekten `curl` ile doğrulandı, çalışıyor
+- `news/migrations/0004_more_sources.py` (2026-08-20): 14 kaynak daha eklendi — Engadget, BBC Technology, ZDNet, MIT Technology Review, VentureBeat, Mashable (uluslararası genel) · 9to5Mac, Android Authority (telefon) · Creative Bloq, Smashing Magazine (grafik tasarım) · STAT News (sağlık teknolojisi) · Webtekno, Chip Türkiye, NTV Teknoloji (Türkiye). Hepsi editöryel/kurumsal haber siteleri (rastgele blog/UGC değil), URL'leri `curl` ile tek tek doğrulandı. Toplam kaynak: 22. Yeni kaynak eklerken de aynı şekilde önce `curl -I <feed_url>` ile gerçekten çalıştığını doğrula, sonra migration'a ekle.
 - Doğrulandı: ilk çalıştırmada 195 gerçek haber çekildi, ikinci çalıştırmada 0 yeni/195 atlandı (dedupe çalışıyor)
 - Yeni kaynak eklemek kod değişikliği gerektirmez — `/admin/news/source/` üzerinden eklenir, `is_active` ile açılıp kapatılabilir
 
