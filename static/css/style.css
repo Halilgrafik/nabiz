@@ -187,6 +187,16 @@ form.auth-form input {
     font: inherit;
 }
 
+form.auth-form input::placeholder {
+    color: var(--text-muted);
+}
+
+.field-hint {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin: -0.5rem 0 0;
+}
+
 form.auth-form button {
     background: var(--accent);
     border: none;
