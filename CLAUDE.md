@@ -42,6 +42,8 @@ Django projesi + `core`/`news` app'leri oluşturuldu, `.env`/`.gitignore`, Railw
 
 `/` — kategori filtreli (`?category=<slug>`), sayfalanmış haber listesi, koyu tema. Haberler kendi özetiyle gösteriliyor, tıklanınca orijinal kaynağa yönlendiriyor (tam metin scrape edilmiyor — telif/etik gerekçesiyle bilinçli tercih, plan dosyasında detaylı gerekçe var).
 
+**Dil filtresi eklendi (2026-08-20):** `Source.language` alanı (`tr`/`en`, `news/migrations/0005_source_language.py`) — kaynağa bağlı, içerik bazlı değil (bir kaynağın tamamı ya Türkçe ya İngilizce yayın yapıyor). `/?lang=tr` veya `/?lang=en`, kategori filtresiyle (`?category=...&lang=...`) birlikte çalışır. Yeni bir Türkçe kaynak eklerken `/admin/news/source/`'dan `language=Türkçe` seçilmesi gerekir (varsayılan `en`).
+
 ## FAZ 3 — Kayıt/Giriş + Okuma Takibi ✅ TAMAMLANDI
 
 Django'nun yerleşik auth view'ları (`django.contrib.auth.urls`) + `core/views.py::register` (custom, `UserCreationForm`). `/read/<id>/` view'ı: giriş yapmış kullanıcı için `ReadEvent` oluşturup orijinal linke 302 yönlendiriyor; anonim kullanıcı direkt yönlendiriliyor (okuma geziniminde login zorunluluğu yok).
