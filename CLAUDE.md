@@ -25,11 +25,17 @@ Django projesi + `core`/`news` app'leri oluşturuldu, `.env`/`.gitignore`, Railw
 
 ## FAZ 1 — Veri Modeli + RSS Toplama ✅ TAMAMLANDI
 
-- `news/models.py`: `Category`, `Source` (feed_url + kategori + `is_active`), `Article` (link/guid ile tekilleştirme), `ReadEvent`
+- `news/models.py`: `Category`, `Source` (feed_url + `is_active`, kategori alanı YOK — bkz. aşağı), `Article` (link/guid ile tekilleştirme), `ReadEvent`
 - `news/management/commands/fetch_news.py`: aktif kaynakları gezip `requests` + `feedparser` ile çeker, kaynak başına `try/except` (bir kaynak bozuksa diğerleri etkilenmez), `link`/`guid` ile tekrar eklemeyi engeller
 - `news/migrations/0002_seed_sources.py`: 8 başlangıç kaynağı (4 uluslararası: TechCrunch, The Verge, Ars Technica, Wired · 4 yerli: Webrazzi, Log.com.tr, ShiftDelete.Net, DonanımHaber) — tüm feed URL'leri bu oturumda gerçekten `curl` ile doğrulandı, çalışıyor
 - Doğrulandı: ilk çalıştırmada 195 gerçek haber çekildi, ikinci çalıştırmada 0 yeni/195 atlandı (dedupe çalışıyor)
 - Yeni kaynak eklemek kod değişikliği gerektirmez — `/admin/news/source/` üzerinden eklenir, `is_active` ile açılıp kapatılabilir
+
+**Kategori mimarisi değişti (2026-08-20):** Kategori artık `Source`'a değil `Article`'a bağlı ve **içerik bazlı** hesaplanıyor — `news/categorize.py::classify_slug()`, başlık+özet metnindeki anahtar kelimelere bakıp en çok eşleşen kategoriyi seçiyor (eşleşme yoksa "Genel Teknoloji"). Neden: tek bir kaynak (örn. TechCrunch) hem yapay zeka hem telefon hem sosyal medya haberi yayınlayabiliyor, kaynak bazlı kategori (`Dünya Teknoloji`/`Türkiye Teknoloji`) anlamsız kalıyordu. Kategoriler: Yapay Zeka, Telefon & Cihazlar, Grafik Tasarım, Sağlık Teknolojisi, Sosyal Medya, Genel Teknoloji (fallback). `news/migrations/0003_topic_categories.py` mevcut haberleri de yeniden kategorilendirdi.
+
+**Dikkat — kısa/genel anahtar kelime tuzağı:** İlk denemede sağlık kategorisine `'aşı'` eklenmişti, bu Türkçe'de "taşımacılık", "ulaşıyor" gibi alakasız kelimelerin içinde substring olarak geçtiğinden yanlış eşleşmelere yol açtı (9/195 yanlış kategorize edildi). `'aşısı'` (sonek dahil) ile değiştirilip düzeltildi. Yeni kategori/anahtar kelime eklerken kısa (3-5 harfli) Türkçe kök kelimelerden kaçınılmalı, `python manage.py shell` ile birkaç örnek üzerinde eşleşen kelimeyi (`TOPIC_KEYWORDS`'ten manuel kontrol) doğrulamadan production'a alınmamalı.
+
+**Bilinen sınırlama:** Anahtar kelime eşleştirmesi "haberde bu kelime geçiyor mu" bakıyor, "haber gerçekten bu konu hakkında mı" değil — örn. bir oyun sızıntısı haberi, sızıntının sosyal medyada yayılmasından bahsettiği için "Sosyal Medya" kategorisine düşebiliyor. Kabul edilebilir bir sınırlama (v1), ileride istenirse iyileştirilebilir.
 
 ## FAZ 2 — Herkese Açık Okuma Arayüzü ✅ TAMAMLANDI
 
