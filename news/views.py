@@ -19,6 +19,12 @@ def article_list(request):
         active_category = get_object_or_404(Category, slug=category_slug)
         articles = articles.filter(category=active_category)
 
+    active_lang = request.GET.get('lang')
+    if active_lang not in ('tr', 'en'):
+        active_lang = None
+    else:
+        articles = articles.filter(source__language=active_lang)
+
     paginator = Paginator(articles, 30)
     page_obj = paginator.get_page(request.GET.get('page'))
 
@@ -26,6 +32,7 @@ def article_list(request):
         'page_obj': page_obj,
         'categories': Category.objects.all(),
         'active_category': active_category,
+        'active_lang': active_lang,
     }
     return render(request, 'news/article_list.html', context)
 

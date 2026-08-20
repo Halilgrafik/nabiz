@@ -15,9 +15,12 @@ class Category(models.Model):
 
 
 class Source(models.Model):
+    LANGUAGE_CHOICES = [('tr', 'Türkçe'), ('en', 'İngilizce')]
+
     name = models.CharField(max_length=100)
     feed_url = models.URLField(unique=True)
     website_url = models.URLField()
+    language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default='en')
     is_active = models.BooleanField(default=True)
 
     class Meta:

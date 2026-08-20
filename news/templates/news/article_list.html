@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="filters lang-filters">
+    <a href="?{% if active_category %}category={{ active_category.slug }}{% endif %}" class="pill {% if not active_lang %}active{% endif %}">Tümü</a>
+    <a href="?lang=tr{% if active_category %}&category={{ active_category.slug }}{% endif %}" class="pill {% if active_lang == 'tr' %}active{% endif %}">🇹🇷 Türkçe</a>
+    <a href="?lang=en{% if active_category %}&category={{ active_category.slug }}{% endif %}" class="pill {% if active_lang == 'en' %}active{% endif %}">🇬🇧 İngilizce</a>
+</div>
+
 <div class="filters">
-    <a href="{% url 'article_list' %}" class="pill {% if not active_category %}active{% endif %}">Tümü</a>
+    <a href="?{% if active_lang %}lang={{ active_lang }}{% endif %}" class="pill {% if not active_category %}active{% endif %}">Tüm Kategoriler</a>
     {% for category in categories %}
-        <a href="?category={{ category.slug }}" class="pill {% if active_category == category %}active{% endif %}">{{ category.name }}</a>
+        <a href="?category={{ category.slug }}{% if active_lang %}&lang={{ active_lang }}{% endif %}" class="pill {% if active_category == category %}active{% endif %}">{{ category.name }}</a>
     {% endfor %}
 </div>
 
@@ -21,17 +27,17 @@
             {% endif %}
         </a>
     {% empty %}
-        <p>Henüz haber yok. <code>python manage.py fetch_news</code> çalıştırıldığında burada görünecek.</p>
+        <p>Bu filtrelerle eşleşen haber yok.</p>
     {% endfor %}
 </div>
 
 <div class="pagination">
     {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}">&laquo; Önceki</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}{% if active_lang %}&lang={{ active_lang }}{% endif %}">&laquo; Önceki</a>
     {% endif %}
     <span>Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}">Sonraki &raquo;</a>
+        <a href="?page={{ page_obj.next_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}{% if active_lang %}&lang={{ active_lang }}{% endif %}">Sonraki &raquo;</a>
     {% endif %}
 </div>
 {% endblock %}
