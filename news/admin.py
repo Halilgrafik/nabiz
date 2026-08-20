@@ -11,8 +11,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Source)
 class SourceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'is_active', 'feed_url')
-    list_filter = ('is_active', 'category')
+    list_display = ('name', 'is_active', 'feed_url')
+    list_filter = ('is_active',)
     search_fields = ('name', 'feed_url')
 
 

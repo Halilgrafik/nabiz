@@ -4,13 +4,19 @@ import feedparser
 import requests
 from django.core.management.base import BaseCommand
 
-from news.models import Article, Source
+from news.categorize import all_categories, classify_slug
+from news.models import Article, Category, Source
 
 
 class Command(BaseCommand):
     help = 'Aktif kaynaklardaki RSS feed\'lerini çekip yeni haberleri kaydeder.'
 
     def handle(self, *args, **options):
+        self._categories = {}
+        for slug, name in all_categories():
+            category, _ = Category.objects.get_or_create(slug=slug, defaults={'name': name})
+            self._categories[slug] = category
+
         total_new = 0
         total_skipped = 0
 
@@ -43,13 +49,17 @@ class Command(BaseCommand):
                 skipped_count += 1
                 continue
 
+            title = entry.get('title', '')[:500]
+            summary = entry.get('summary', '')
+            category = self._categories[classify_slug(title, summary)]
+
             Article.objects.create(
                 source=source,
-                category=source.category,
-                title=entry.get('title', '')[:500],
+                category=category,
+                title=title,
                 link=link,
                 guid=guid[:500],
-                summary=entry.get('summary', ''),
+                summary=summary,
                 published_at=self._parse_date(entry),
             )
             new_count += 1

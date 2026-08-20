@@ -18,7 +18,6 @@ class Source(models.Model):
     name = models.CharField(max_length=100)
     feed_url = models.URLField(unique=True)
     website_url = models.URLField()
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='sources')
     is_active = models.BooleanField(default=True)
 
     class Meta:
