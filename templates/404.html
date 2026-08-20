@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="text-align:center; padding: 4rem 0;">
+    <h1>404</h1>
+    <p>Aradığın sayfa bulunamadı.</p>
+    <a href="{% url 'article_list' %}" style="color: var(--accent);">Ana sayfaya dön</a>
+</div>
+{% endblock %}

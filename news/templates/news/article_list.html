@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="filters">
+    <a href="{% url 'article_list' %}" class="pill {% if not active_category %}active{% endif %}">Tümü</a>
+    {% for category in categories %}
+        <a href="?category={{ category.slug }}" class="pill {% if active_category == category %}active{% endif %}">{{ category.name }}</a>
+    {% endfor %}
+</div>
+
+<div class="article-grid">
+    {% for article in page_obj %}
+        <a class="article-card" href="{% url 'read_article' article.id %}" target="_blank" rel="noopener">
+            <span class="article-source">{{ article.source.name }} · {{ article.category.name }}</span>
+            <h2 class="article-title">{{ article.title }}</h2>
+            {% if article.summary %}
+                <p class="article-summary">{{ article.summary|striptags|truncatewords:30 }}</p>
+            {% endif %}
+            {% if article.published_at %}
+                <span class="article-date">{{ article.published_at|date:"d.m.Y H:i" }}</span>
+            {% endif %}
+        </a>
+    {% empty %}
+        <p>Henüz haber yok. <code>python manage.py fetch_news</code> çalıştırıldığında burada görünecek.</p>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}">&laquo; Önceki</a>
+    {% endif %}
+    <span>Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if active_category %}&category={{ active_category.slug }}{% endif %}">Sonraki &raquo;</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form class="auth-form" method="post">
+    <h1>Giriş Yap</h1>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+        {{ field }}
+        {{ field.errors }}
+    {% endfor %}
+    <button type="submit">Giriş Yap</button>
+    <p style="text-align:center;">Hesabın yok mu? <a href="{% url 'register' %}" style="color: var(--accent);">Kayıt ol</a></p>
+</form>
+{% endblock %}

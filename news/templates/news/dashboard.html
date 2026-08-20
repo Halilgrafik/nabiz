@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Nabız Panelim{% endblock %}
+
+{% block content %}
+<h1>Nabzın</h1>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_read }}</div>
+        <div class="stat-label">Toplam okunan haber</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ read_this_week }}</div>
+        <div class="stat-label">Bu hafta</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ read_this_month }}</div>
+        <div class="stat-label">Bu ay</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ streak }}</div>
+        <div class="stat-label">Günlük seri 🔥</div>
+    </div>
+</div>
+
+<h2>Kategori Dağılımı</h2>
+<ul class="category-breakdown">
+    {% for row in category_breakdown %}
+        <li><span>{{ row.article__category__name }}</span><span>{{ row.count }}</span></li>
+    {% empty %}
+        <li>Henüz okuma geçmişin yok — haberlere tıklamaya başla.</li>
+    {% endfor %}
+</ul>
+
+<h2>Son 14 Gün</h2>
+<div class="chart-wrap">
+    <canvas id="readingChart" height="80"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    new Chart(document.getElementById('readingChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: 'Okunan haber',
+                data: {{ chart_values|safe }},
+                backgroundColor: '#ff4d5e',
+                borderRadius: 4,
+            }],
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#9099a8' }, grid: { display: false } },
+                y: { ticks: { color: '#9099a8', precision: 0 }, grid: { color: '#262b36' } },
+            },
+        },
+    });
+</script>
+{% endblock %}
