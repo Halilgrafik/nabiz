@@ -59,10 +59,11 @@ Yapılanlar: `README.md`, `LICENSE` (MIT), `robots.txt`, 404/500 sayfaları, `.e
 - `railway ssh` bu WSL ortamında host-key doğrulamasında takılıyor (askpass/DISPLAY sorunu, çözülemedi) — tek seferlik yönetim komutları için `railway api` üzerinden GraphQL mutasyonları (örn. `deploymentInstanceExecutionCreate`) veya geçici env var + servis config değişikliği tercih edildi.
 - `railway add --repo ...` bu GitHub hesabı için "You do not have access to this resource" hatası verdi (Railway'in GitHub App'i bu repoya yetkilendirilmemiş) — bunun yerine boş servis oluşturup `railway up` ile lokal kaynaktan deploy edildi. GitHub push sonrası otomatik deploy istenirse, Railway dashboard'undan GitHub App'e bu repo için erişim verilmesi gerekir.
 
-**Kalan (kullanıcı tarafından yapılmalı):**
-1. `/admin/` için bir superuser hesabı — Railway dashboard'unda **web** servisi → sağ üstteki komut/terminal özelliğinden (veya `railway ssh` host-key sorunu çözülürse CLI'den) `python manage.py createsuperuser` çalıştırılmalı. Bu oturumda otomatikleştirilemedi.
-2. (Opsiyonel) Özel domain bağlanacaksa Railway'in domain ayarlarından yapılır.
-3. (Opsiyonel) GitHub'a her push'ta otomatik deploy istenirse, Railway'in GitHub App'ine `Halilgrafik/nabiz` reposu için erişim verilip `web` servisinin source'u repoya bağlanmalı (`railway service source connect --repo Halilgrafik/nabiz --service web`).
+**Superuser oluşturuldu** (2026-08-20): Railway dashboard'unda bu sürümde tarayıcı-içi bir shell/terminal seçeneği yok (Deploy Logs ekranındaki `...` menüsünde sadece Restart/Redeploy/Remove var, Details sekmesinde de terminal yok) — bu yüzden `railway ssh`'ın host-key sorunu nedeniyle çalışmadığı bu ortamda, geçici bir çözüm kullanıldı: `railway.createsuperuser.json` (repo köküne eklendi, `startCommand: python manage.py createsuperuser --noinput`) oluşturulup `fetch-news` servisi (canlı `web`'e dokunmadan) geçici olarak buna yönlendirildi, `DJANGO_SUPERUSER_USERNAME`/`_EMAIL`/`_PASSWORD` env değişkenleriyle çalıştırılıp sonra hem config hem env değişkenleri `railway.cron.json`/normal cron'a geri döndürüldü. `/admin/` girişi kullanıcı adı `halilgrafik` ile doğrulandı, çalışıyor. Aynı yöntem ileride başka bir yönetim komutu (`changepassword`, `loaddata` vb.) çalıştırmak gerekirse tekrar kullanılabilir — `railway.createsuperuser.json` dosyası bu amaçla repoda bırakıldı (dosyanın kendisinde şifre yok, `startCommand`'i değiştirip tekrar kullanılabilir).
+
+**Kalan (opsiyonel, kullanıcı isterse):**
+1. Özel domain bağlanacaksa Railway'in domain ayarlarından yapılır.
+2. GitHub'a her push'ta otomatik deploy istenirse, Railway'in GitHub App'ine `Halilgrafik/nabiz` reposu için erişim verilip `web` servisinin source'u repoya bağlanmalı (`railway service source connect --repo Halilgrafik/nabiz --service web`).
 
 ## İleride, Şimdi Değil (kapsam dışı bırakıldı)
 
